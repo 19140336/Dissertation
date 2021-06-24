@@ -11,9 +11,6 @@ corp = corpus(df$content)
 # Add id
 corp$id = df$review_id
 
-# Change units of text to sentences (Do we want to do this?)
-# corp = corpus_reshape(corp, to = "sentences")
-
 # Remove punctuation, symbols, numbers, urls and seperators
 corp = tokens(corp, remove_punct = T, remove_symbols = T, remove_numbers = T, remove_url = T, remove_separators = T)
 
