@@ -22,3 +22,6 @@ dfmat = dfm(corp)
 
 # Analyse frequency of features
 freq = textstat_frequency(dfmat)
+
+# Perform tf-idf
+tfidf = dfm_tfidf(dfmat, scheme_tf = "prop", scheme_df = "inverse")
