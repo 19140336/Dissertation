@@ -27,12 +27,11 @@ library(e1071)
 library(pROC)
 library(tictoc)
 
+#Record the duration of the experiment
 tic.clearlog()
 tic("Timer", msg = "Total time")
 
 set.seed(1234)
-#Set working directory
-# setwd("C:/Users/tobyb/Documents/Uni_Links/Dissertation/AppStore/Dataset1M_2018/dataset")
 
 #Read csv file
 data1M = read.csv(file="C:/Users/tobyb/Documents/Uni_Links/Dissertation/AppStore/Dataset1M_2018/dataset/data1M.csv", stringsAsFactors=FALSE)
@@ -130,10 +129,10 @@ for (i in 1:10){
   basepred4 = predict(basefit4, tes[,-1])
   
   #Train wrapper algorithms
-  selffit1 = selfTraining(learner = dectree, perc.full = 0.7, thr.conf = 0.5, max.iter = 10) %>% fit(class ~., data = semitra[,-1])
-  selffit2 = selfTraining(learner = svmrbf, perc.full = 0.7, thr.conf = 0.5, max.iter = 10) %>% fit(class ~., data = semitra[,-1])
-  selffit3 = selfTraining(learner = knn, perc.full = 0.7, thr.conf = 0.5, max.iter = 10) %>% fit(class ~., data = semitra[,-1])
-  selffit4 = selfTraining(learner = logreg, perc.full = 0.7, thr.conf = 0.5, max.iter = 10) %>% fit(class ~., data = semitra[,-1])
+  selffit1 = selfTraining(learner = dectree, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class ~., data = semitra[,-1])
+  selffit2 = selfTraining(learner = svmrbf, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class ~., data = semitra[,-1])
+  selffit3 = selfTraining(learner = knn, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class ~., data = semitra[,-1])
+  selffit4 = selfTraining(learner = logreg, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class ~., data = semitra[,-1])
   
   # Make predictions with wrapper algorithm
   selfpred1 = predict(selffit1, tes[,-1])
@@ -141,7 +140,7 @@ for (i in 1:10){
   selfpred3 = predict(selffit3, tes[,-1])
   selfpred4 = predict(selffit4, tes[,-1])
   
-  #Record confusion matrices and auc values
+  #Record confusion matrices and auc values (Note: am going to finish this)
   if (i == 1){
     basep1 = confusionMatrix(as.factor(as.numeric(unlist(basepred1))), tes$class)$table
     basep2 = confusionMatrix(as.factor(as.numeric(unlist(basepred2))), tes$class)$table
@@ -158,10 +157,10 @@ for (i in 1:10){
     baseauc3 = multiclass.roc(tes$class, as.numeric(unlist(basepred1)))$auc[1]
     baseauc4 = multiclass.roc(tes$class, as.numeric(unlist(basepred1)))$auc[1]
     
-    selfauc1 = multiclass.roc(tes$class,as.numeric(unlist(basepred1)))$auc[1]
-    selfauc2 = multiclass.roc(tes$class,as.numeric(unlist(basepred1)))$auc[1]
-    selfauc3 = multiclass.roc(tes$class,as.numeric(unlist(basepred1)))$auc[1]
-    selfauc4 = multiclass.roc(tes$class,as.numeric(unlist(basepred1)))$auc[1]
+    selfauc1 = multiclass.roc(tes$class,as.numeric(unlist(selfpred1)))$auc[1]
+    selfauc2 = multiclass.roc(tes$class,as.numeric(unlist(selfpred2)))$auc[1]
+    selfauc3 = multiclass.roc(tes$class,as.numeric(unlist(selfpred3)))$auc[1]
+    selfauc4 = multiclass.roc(tes$class,as.numeric(unlist(selfpred4)))$auc[1]
     
   } else{
     basep1 = (basep1 + confusionMatrix(as.factor(as.numeric(unlist(basepred1))), tes$class)$table) / 2
@@ -180,9 +179,9 @@ for (i in 1:10){
     baseauc4 = mean(baseauc4, multiclass.roc(tes$class,as.numeric(unlist(basepred4)))$auc[1])
     
     selfauc1 = mean(selfauc1, multiclass.roc(tes$class,as.numeric(unlist(selfpred1)))$auc[1])
-    selfauc2 = mean(selfauc2, multiclass.roc(tes$class,as.numeric(unlist(selfpred1)))$auc[1])
-    selfauc3 = mean(selfauc3, multiclass.roc(tes$class,as.numeric(unlist(selfpred1)))$auc[1])
-    selfauc4 = mean(selfauc4, multiclass.roc(tes$class,as.numeric(unlist(selfpred1)))$auc[1])
+    selfauc2 = mean(selfauc2, multiclass.roc(tes$class,as.numeric(unlist(selfpred2)))$auc[1])
+    selfauc3 = mean(selfauc3, multiclass.roc(tes$class,as.numeric(unlist(selfpred3)))$auc[1])
+    selfauc4 = mean(selfauc4, multiclass.roc(tes$class,as.numeric(unlist(selfpred4)))$auc[1])
   }
 }
 
