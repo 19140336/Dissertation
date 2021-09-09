@@ -27,6 +27,8 @@ tic("Timer", msg = "Total time")
 
 set.seed(1234)
 
+########## Pre-processing ##########
+
 #Read csv files
 # data1M = read.csv(file="C:/Users/tobyb/Documents/Uni_Links/Dissertation/AppStore/Dataset1M_2018/dataset/data1M.csv", stringsAsFactors=FALSE)
 data1M = read.csv(file="C:/Users/tobyb/Documents/Uni_Links/Dissertation/AppStore/Dataset1M_2018/metadata1M/metadata1M.csv", stringsAsFactors=FALSE)
@@ -69,7 +71,7 @@ unlabelledData = data1M_dfm[2758:nrow(data1M_dfm),]
 rm(data1M, corp, data1M_dfm, meta)
 gc()
 
-########## Create training and testing data section ##########
+########## Create training and testing data ##########
 #Splitting our labelled dataset 2757 into 2, for training and for algorithm performance dataset
 
 #Reduce data to smaller set
@@ -100,6 +102,8 @@ p3 = vector("list", 51)
 auc1 = vector("list", 51)
 auc2 = vector("list", 51)
 auc3 = vector("list", 51)
+
+########## Run experiment ##########
 
 for (i in 10:10){
   #Define training and testing sets for base classifiers
