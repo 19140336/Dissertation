@@ -1,0 +1,143 @@
+#Takes ~2 hours on my machine
+
+library(quanteda)
+library(caret)
+library(caretEnsemble)
+library(randomForest)
+library(lattice)
+library(ggplot2)
+library(dplyr)
+library(RWeka)
+
+library(splitstackshape)
+library(tidyverse)
+library(SSLR)
+library(tidymodels)
+library(kknn)
+library(C50)
+library(e1071)
+library(pROC)
+library(discrim)
+library(rules)
+library(fastDummies)
+
+#Record the duration of the experiment
+timeTotal = Sys.time()
+
+#Set seed for reproducible results
+set.seed(12345)
+
+########## Pre-processing ##########
+
+#Read csv files and isolate metadata
+data1M = read.csv(file="C:/Users/tobyb/Documents/Uni_Links/Dissertation/AppStore/Dataset1M_2018/metadata1M/metadata1M.csv", stringsAsFactors=FALSE)
+data1M = data1M[,c(9,11)]
+
+#Create corpus
+corp = corpus(data1M$content)
+
+#Attach class labels to the corpus
+docvars(corp, "class") = paste0(data1M$class)
+
+#Clean and transform into a document feature matrix
+data1M_dfm = tokens(corp, remove_punct = T, remove_symbols = T, remove_numbers = T, remove_url = T, remove_separators = T)
+data1M_dfm = tokens_remove(data1M_dfm, pattern = stopwords("en"))
+data1M_dfm = dfm(data1M_dfm)
+data1M_dfm = dfm_wordstem(data1M_dfm)
+
+#Trim features by term frequency, document frequency, feature character count
+data1M_dfm = dfm_trim(data1M_dfm, min_termfreq = 5, min_docfreq = 10000)
+data1M_dfm = dfm_select(data1M_dfm, min_nchar = 3)
+
+#Apply tf-idf
+data1M_dfm = dfm_tfidf(data1M_dfm, scheme_tf = "count", scheme_df = "inverse")
+
+#Convert document feature matrix to data frame
+data1M_dfm = cbind(convert(data1M_dfm, to = "data.frame"), docvars(data1M_dfm))
+
+#Remove the document and doc_id columns
+data1M_dfm$document = NULL
+data1M_dfm$doc_id = NULL
+
+#Split the data into labelled and unlabelled, randomly select required amounts
+labelledData = data1M_dfm[1:2757,]
+unlabelledData = data1M_dfm[2758:nrow(data1M_dfm),]
+
+#Remove objects and free up some memory
+rm(data1M, corp, data1M_dfm)
+gc()
+
+#Designate base classifiers
+c5 = C5_rules(mode = "classification") %>% set_engine("C5.0")
+knn = nearest_neighbor(mode = "classification") %>% set_engine("kknn")
+logreg = multinom_reg(mode = "classification") %>% set_engine("nnet")
+
+#Reduce size of labelled and unlabelled data
+labelledData = labelledData[sample(nrow(labelledData), 1000),]
+unlabelledData = unlabelledData[sample(nrow(unlabelledData), 20000),]
+
+#Create folds
+folds = createFolds(1:20000, k = 20, list = T)
+
+#Change classes to number
+labelledData$class = as.factor(as.numeric(as.factor(labelledData$class)))
+unlabelledData$class = as.factor(rep(NA, nrow(unlabelledData)))
+
+#Time folds 0 and 1 for C5
+y = Sys.time()
+x = fit(object = c5, class~., data = labelledData)
+times = Sys.time() - y
+
+y = Sys.time()
+x = selfTraining(learner = c5, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[1]),]))
+times = c(times, Sys.time() - y)
+
+#Loop for folds 2 to 20 for C5
+for (i in 2:20){
+  folds[[i]] = c(folds[[i]], folds[[i-1]])
+  y = Sys.time()
+  x = selfTraining(learner = c5, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[i]),]))
+  times = c(times, Sys.time() - y)
+  message(paste("i=", i))
+}
+
+#Time folds 0 and 1 for kNN
+y = Sys.time()
+x = fit(object = knn, class~., data = labelledData)
+times = c(times, Sys.time() - y)
+
+y = Sys.time()
+x = selfTraining(learner = knn, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[1]),]))
+times = c(times, Sys.time() - y)
+
+#Loop for folds 2 to 20 for kNN
+for (i in 2:20){
+  y = Sys.time()
+  x = selfTraining(learner = knn, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[i]),]))
+  times = c(times, Sys.time() - y)
+  message(paste("i=", i))
+}
+
+#Time folds 0 and 1 for Logistic Regression
+y = Sys.time()
+x = fit(object = logreg, class~., data = labelledData)
+times = c(times, Sys.time() - y)
+
+y = Sys.time()
+x = selfTraining(learner = logreg, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[1]),]))
+times = c(times, Sys.time() - y)
+
+#Loop for folds 2 to 20 for Logistic Regression
+for (i in 2:20){
+  y = Sys.time()
+  x = selfTraining(learner = logreg, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[i]),]))
+  times = c(times, Sys.time() - y)
+  message(paste("i=", i))
+}
+
+dftimes = data.frame("Model" = c(rep("C5.0 Decision Tree", 21), rep("k-NN", 21), rep("Logistic Regression", 21)), "Unlabelled Data" = rep(seq(0,20000, 1000), 3), "Time" = times)
+
+ggplot(data = dftimes, aes(y = Time, x = Unlabelled.Data, color = Model)) + geom_line(size = 1.3) + xlab("Unlabelled Data")
+
+#Store total time
+timeTotal = Sys.time() - timeTotal
