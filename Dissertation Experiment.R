@@ -219,38 +219,38 @@ for (j in 1:3){
     
     #Collect performance metrics
     if (i==1 & j==1){
-      c5p[[1]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred10))), labelledData$class[folds[[i]]])$bestValues
-      c5p[[2]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred20))), labelledData$class[folds[[i]]])$bestValues
-      c5p[[3]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred30))), labelledData$class[folds[[i]]])$bestValues
-      c5p[[4]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred40))), labelledData$class[folds[[i]]])$bestValues
-      c5p[[5]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred50))), labelledData$class[folds[[i]]])$bestValues
-      c5p[[6]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred60))), labelledData$class[folds[[i]]])$bestValues
-      c5p[[7]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred70))), labelledData$class[folds[[i]]])$bestValues
-      c5p[[8]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred80))), labelledData$class[folds[[i]]])$bestValues
-      c5p[[9]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred90))), labelledData$class[folds[[i]]])$bestValues
-      c5p[[10]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred100))), labelledData$class[folds[[i]]])$bestValues
+      c5p[[1]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred10))), labelledData$class[folds[[i]]])$byClass
+      c5p[[2]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred20))), labelledData$class[folds[[i]]])$byClass
+      c5p[[3]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred30))), labelledData$class[folds[[i]]])$byClass
+      c5p[[4]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred40))), labelledData$class[folds[[i]]])$byClass
+      c5p[[5]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred50))), labelledData$class[folds[[i]]])$byClass
+      c5p[[6]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred60))), labelledData$class[folds[[i]]])$byClass
+      c5p[[7]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred70))), labelledData$class[folds[[i]]])$byClass
+      c5p[[8]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred80))), labelledData$class[folds[[i]]])$byClass
+      c5p[[9]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred90))), labelledData$class[folds[[i]]])$byClass
+      c5p[[10]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred100))), labelledData$class[folds[[i]]])$byClass
       
-      knnp[[1]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred10))), labelledData$class[folds[[i]]])$bestValues
-      knnp[[2]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred20))), labelledData$class[folds[[i]]])$bestValues
-      knnp[[3]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred30))), labelledData$class[folds[[i]]])$bestValues
-      knnp[[4]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred40))), labelledData$class[folds[[i]]])$bestValues
-      knnp[[5]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred50))), labelledData$class[folds[[i]]])$bestValues
-      knnp[[6]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred60))), labelledData$class[folds[[i]]])$bestValues
-      knnp[[7]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred70))), labelledData$class[folds[[i]]])$bestValues
-      knnp[[8]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred80))), labelledData$class[folds[[i]]])$bestValues
-      knnp[[9]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred90))), labelledData$class[folds[[i]]])$bestValues
-      knnp[[10]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred100))), labelledData$class[folds[[i]]])$bestValues
+      knnp[[1]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred10))), labelledData$class[folds[[i]]])$byClass
+      knnp[[2]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred20))), labelledData$class[folds[[i]]])$byClass
+      knnp[[3]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred30))), labelledData$class[folds[[i]]])$byClass
+      knnp[[4]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred40))), labelledData$class[folds[[i]]])$byClass
+      knnp[[5]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred50))), labelledData$class[folds[[i]]])$byClass
+      knnp[[6]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred60))), labelledData$class[folds[[i]]])$byClass
+      knnp[[7]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred70))), labelledData$class[folds[[i]]])$byClass
+      knnp[[8]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred80))), labelledData$class[folds[[i]]])$byClass
+      knnp[[9]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred90))), labelledData$class[folds[[i]]])$byClass
+      knnp[[10]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred100))), labelledData$class[folds[[i]]])$byClass
       
-      logp[[1]] = confusionMatrix(as.factor(as.numeric(unlist(logpred10))), labelledData$class[folds[[i]]])$bestValues
-      logp[[2]] = confusionMatrix(as.factor(as.numeric(unlist(logpred20))), labelledData$class[folds[[i]]])$bestValues
-      logp[[3]] = confusionMatrix(as.factor(as.numeric(unlist(logpred30))), labelledData$class[folds[[i]]])$bestValues
-      logp[[4]] = confusionMatrix(as.factor(as.numeric(unlist(logpred40))), labelledData$class[folds[[i]]])$bestValues
-      logp[[5]] = confusionMatrix(as.factor(as.numeric(unlist(logpred50))), labelledData$class[folds[[i]]])$bestValues
-      logp[[6]] = confusionMatrix(as.factor(as.numeric(unlist(logpred60))), labelledData$class[folds[[i]]])$bestValues
-      logp[[7]] = confusionMatrix(as.factor(as.numeric(unlist(logpred70))), labelledData$class[folds[[i]]])$bestValues
-      logp[[8]] = confusionMatrix(as.factor(as.numeric(unlist(logpred80))), labelledData$class[folds[[i]]])$bestValues
-      logp[[9]] = confusionMatrix(as.factor(as.numeric(unlist(logpred90))), labelledData$class[folds[[i]]])$bestValues
-      logp[[10]] = confusionMatrix(as.factor(as.numeric(unlist(logpred100))), labelledData$class[folds[[i]]])$bestValues
+      logp[[1]] = confusionMatrix(as.factor(as.numeric(unlist(logpred10))), labelledData$class[folds[[i]]])$byClass
+      logp[[2]] = confusionMatrix(as.factor(as.numeric(unlist(logpred20))), labelledData$class[folds[[i]]])$byClass
+      logp[[3]] = confusionMatrix(as.factor(as.numeric(unlist(logpred30))), labelledData$class[folds[[i]]])$byClass
+      logp[[4]] = confusionMatrix(as.factor(as.numeric(unlist(logpred40))), labelledData$class[folds[[i]]])$byClass
+      logp[[5]] = confusionMatrix(as.factor(as.numeric(unlist(logpred50))), labelledData$class[folds[[i]]])$byClass
+      logp[[6]] = confusionMatrix(as.factor(as.numeric(unlist(logpred60))), labelledData$class[folds[[i]]])$byClass
+      logp[[7]] = confusionMatrix(as.factor(as.numeric(unlist(logpred70))), labelledData$class[folds[[i]]])$byClass
+      logp[[8]] = confusionMatrix(as.factor(as.numeric(unlist(logpred80))), labelledData$class[folds[[i]]])$byClass
+      logp[[9]] = confusionMatrix(as.factor(as.numeric(unlist(logpred90))), labelledData$class[folds[[i]]])$byClass
+      logp[[10]] = confusionMatrix(as.factor(as.numeric(unlist(logpred100))), labelledData$class[folds[[i]]])$byClass
       
       dfauc$AUC[1] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred10)))$auc[1]
       dfauc$AUC[2] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred20)))$auc[1]
@@ -319,38 +319,38 @@ for (j in 1:3){
       dfauc$MCC[30] = mcc(unlist(logpred100), labelledData$class[folds[[i]]])
       
     } else{
-      c5p[[1]] = (c5p[[1]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred10))), labelledData$class[folds[[i]]])$bestValues) / 2
-      c5p[[2]] = (c5p[[2]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred20))), labelledData$class[folds[[i]]])$bestValues) / 2
-      c5p[[3]] = (c5p[[3]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred30))), labelledData$class[folds[[i]]])$bestValues) / 2
-      c5p[[4]] = (c5p[[4]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred40))), labelledData$class[folds[[i]]])$bestValues) / 2
-      c5p[[5]] = (c5p[[5]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred50))), labelledData$class[folds[[i]]])$bestValues) / 2
-      c5p[[6]] = (c5p[[6]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred60))), labelledData$class[folds[[i]]])$bestValues) / 2
-      c5p[[7]] = (c5p[[7]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred70))), labelledData$class[folds[[i]]])$bestValues) / 2
-      c5p[[8]] = (c5p[[8]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred80))), labelledData$class[folds[[i]]])$bestValues) / 2
-      c5p[[9]] = (c5p[[9]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred90))), labelledData$class[folds[[i]]])$bestValues) / 2
-      c5p[[10]] = (c5p[[10]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred100))), labelledData$class[folds[[i]]])$bestValues) / 2
+      c5p[[1]] = (c5p[[1]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred10))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[2]] = (c5p[[2]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred20))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[3]] = (c5p[[3]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred30))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[4]] = (c5p[[4]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred40))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[5]] = (c5p[[5]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred50))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[6]] = (c5p[[6]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred60))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[7]] = (c5p[[7]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred70))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[8]] = (c5p[[8]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred80))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[9]] = (c5p[[9]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred90))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[10]] = (c5p[[10]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred100))), labelledData$class[folds[[i]]])$byClass) / 2
       
-      knnp[[1]] = (knnp[[1]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred10))), labelledData$class[folds[[i]]])$bestValues) / 2
-      knnp[[2]] = (knnp[[2]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred20))), labelledData$class[folds[[i]]])$bestValues) / 2
-      knnp[[3]] = (knnp[[3]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred30))), labelledData$class[folds[[i]]])$bestValues) / 2
-      knnp[[4]] = (knnp[[4]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred40))), labelledData$class[folds[[i]]])$bestValues) / 2
-      knnp[[5]] = (knnp[[5]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred50))), labelledData$class[folds[[i]]])$bestValues) / 2
-      knnp[[6]] = (knnp[[6]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred60))), labelledData$class[folds[[i]]])$bestValues) / 2
-      knnp[[7]] = (knnp[[7]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred70))), labelledData$class[folds[[i]]])$bestValues) / 2
-      knnp[[8]] = (knnp[[8]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred80))), labelledData$class[folds[[i]]])$bestValues) / 2
-      knnp[[9]] = (knnp[[9]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred90))), labelledData$class[folds[[i]]])$bestValues) / 2
-      knnp[[10]] = (knnp[[10]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred100))), labelledData$class[folds[[i]]])$bestValues) / 2
+      knnp[[1]] = (knnp[[1]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred10))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[2]] = (knnp[[2]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred20))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[3]] = (knnp[[3]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred30))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[4]] = (knnp[[4]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred40))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[5]] = (knnp[[5]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred50))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[6]] = (knnp[[6]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred60))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[7]] = (knnp[[7]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred70))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[8]] = (knnp[[8]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred80))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[9]] = (knnp[[9]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred90))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[10]] = (knnp[[10]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred100))), labelledData$class[folds[[i]]])$byClass) / 2
       
-      logp[[1]] = (logp[[1]] + confusionMatrix(as.factor(as.numeric(unlist(logpred10))), labelledData$class[folds[[i]]])$bestValues) / 2
-      logp[[2]] = (logp[[2]] + confusionMatrix(as.factor(as.numeric(unlist(logpred20))), labelledData$class[folds[[i]]])$bestValues) / 2
-      logp[[3]] = (logp[[3]] + confusionMatrix(as.factor(as.numeric(unlist(logpred30))), labelledData$class[folds[[i]]])$bestValues) / 2
-      logp[[4]] = (logp[[4]] + confusionMatrix(as.factor(as.numeric(unlist(logpred40))), labelledData$class[folds[[i]]])$bestValues) / 2
-      logp[[5]] = (logp[[5]] + confusionMatrix(as.factor(as.numeric(unlist(logpred50))), labelledData$class[folds[[i]]])$bestValues) / 2
-      logp[[6]] = (logp[[6]] + confusionMatrix(as.factor(as.numeric(unlist(logpred60))), labelledData$class[folds[[i]]])$bestValues) / 2
-      logp[[7]] = (logp[[7]] + confusionMatrix(as.factor(as.numeric(unlist(logpred70))), labelledData$class[folds[[i]]])$bestValues) / 2
-      logp[[8]] = (logp[[8]] + confusionMatrix(as.factor(as.numeric(unlist(logpred80))), labelledData$class[folds[[i]]])$bestValues) / 2
-      logp[[9]] = (logp[[9]] + confusionMatrix(as.factor(as.numeric(unlist(logpred90))), labelledData$class[folds[[i]]])$bestValues) / 2
-      logp[[10]] = (logp[[10]] + confusionMatrix(as.factor(as.numeric(unlist(logpred100))), labelledData$class[folds[[i]]])$bestValues) / 2
+      logp[[1]] = (logp[[1]] + confusionMatrix(as.factor(as.numeric(unlist(logpred10))), labelledData$class[folds[[i]]])$byClass) / 2
+      logp[[2]] = (logp[[2]] + confusionMatrix(as.factor(as.numeric(unlist(logpred20))), labelledData$class[folds[[i]]])$byClass) / 2
+      logp[[3]] = (logp[[3]] + confusionMatrix(as.factor(as.numeric(unlist(logpred30))), labelledData$class[folds[[i]]])$byClass) / 2
+      logp[[4]] = (logp[[4]] + confusionMatrix(as.factor(as.numeric(unlist(logpred40))), labelledData$class[folds[[i]]])$byClass) / 2
+      logp[[5]] = (logp[[5]] + confusionMatrix(as.factor(as.numeric(unlist(logpred50))), labelledData$class[folds[[i]]])$byClass) / 2
+      logp[[6]] = (logp[[6]] + confusionMatrix(as.factor(as.numeric(unlist(logpred60))), labelledData$class[folds[[i]]])$byClass) / 2
+      logp[[7]] = (logp[[7]] + confusionMatrix(as.factor(as.numeric(unlist(logpred70))), labelledData$class[folds[[i]]])$byClass) / 2
+      logp[[8]] = (logp[[8]] + confusionMatrix(as.factor(as.numeric(unlist(logpred80))), labelledData$class[folds[[i]]])$byClass) / 2
+      logp[[9]] = (logp[[9]] + confusionMatrix(as.factor(as.numeric(unlist(logpred90))), labelledData$class[folds[[i]]])$byClass) / 2
+      logp[[10]] = (logp[[10]] + confusionMatrix(as.factor(as.numeric(unlist(logpred100))), labelledData$class[folds[[i]]])$byClass) / 2
       
       dfauc$AUC[1] = mean(dfauc$AUC[1], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred10)))$auc[1])
       dfauc$AUC[2] = mean(dfauc$AUC[2], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred20)))$auc[1])
