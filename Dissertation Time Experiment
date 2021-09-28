@@ -73,7 +73,7 @@ knn = nearest_neighbor(mode = "classification") %>% set_engine("kknn")
 logreg = multinom_reg(mode = "classification") %>% set_engine("nnet")
 
 #Reduce size of labelled and unlabelled data
-labelledData = labelledData[sample(nrow(labelledData), 1000),]
+labelledData = labelledData[sample(nrow(labelledData), 2000),]
 unlabelledData = unlabelledData[sample(nrow(unlabelledData), 20000),]
 
 #Create folds
@@ -83,54 +83,68 @@ folds = createFolds(1:20000, k = 20, list = T)
 labelledData$class = as.factor(as.numeric(as.factor(labelledData$class)))
 unlabelledData$class = as.factor(rep(NA, nrow(unlabelledData)))
 
+#Create training and testing sets of labelled data
+fold = sample(nrow(labelledData), 1000)
+tra = labelledData[fold,]
+tes = labelledData[-fold,]
+
 #Time folds 0 and 1 for C5
 y = Sys.time()
-x = fit(object = c5, class~., data = labelledData)
+x1 = fit(object = c5, class~., data = tra)
+x2 = predict(x1, tes)
 times = Sys.time() - y
 
 y = Sys.time()
-x = selfTraining(learner = c5, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[1]),]))
+x1 = selfTraining(learner = c5, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(tra, unlabelledData[do.call(c, folds[1]),]))
+x2 = predict(x1, tes)
 times = c(times, Sys.time() - y)
 
 #Loop for folds 2 to 20 for C5
 for (i in 2:20){
   folds[[i]] = c(folds[[i]], folds[[i-1]])
   y = Sys.time()
-  x = selfTraining(learner = c5, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[i]),]))
+  x1 = selfTraining(learner = c5, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(tra, unlabelledData[do.call(c, folds[i]),]))
+  x2 = predict(x1, tes)
   times = c(times, Sys.time() - y)
   message(paste("i=", i))
 }
 
 #Time folds 0 and 1 for kNN
 y = Sys.time()
-x = fit(object = knn, class~., data = labelledData)
+x1 = fit(object = knn, class~., data = tra)
+x2 = predict(x1, tes)
 times = c(times, Sys.time() - y)
 
 y = Sys.time()
-x = selfTraining(learner = knn, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[1]),]))
+x1 = selfTraining(learner = knn, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(tra, unlabelledData[do.call(c, folds[1]),]))
+x2 = predict(x1, tes)
 times = c(times, Sys.time() - y)
 
 #Loop for folds 2 to 20 for kNN
 for (i in 2:20){
   y = Sys.time()
-  x = selfTraining(learner = knn, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[i]),]))
+  x1 = selfTraining(learner = knn, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(tra, unlabelledData[do.call(c, folds[i]),]))
+  x2 = predict(x1, tes)
   times = c(times, Sys.time() - y)
   message(paste("i=", i))
 }
 
 #Time folds 0 and 1 for Logistic Regression
 y = Sys.time()
-x = fit(object = logreg, class~., data = labelledData)
+x1 = fit(object = logreg, class~., data = tra)
+x2 = predict(x1, tes)
 times = c(times, Sys.time() - y)
 
 y = Sys.time()
-x = selfTraining(learner = logreg, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[1]),]))
+x1 = selfTraining(learner = logreg, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(tra, unlabelledData[do.call(c, folds[1]),]))
+x2 = predict(x1, tes)
 times = c(times, Sys.time() - y)
 
 #Loop for folds 2 to 20 for Logistic Regression
 for (i in 2:20){
   y = Sys.time()
-  x = selfTraining(learner = logreg, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(labelledData, unlabelledData[do.call(c, folds[i]),]))
+  x1 = selfTraining(learner = logreg, perc.full = 0.7, thr.conf = 0.5, max.iter = 50) %>% fit(class~., data = rbind(tra, unlabelledData[do.call(c, folds[i]),]))
+  x2 = predict(x1, tes)
   times = c(times, Sys.time() - y)
   message(paste("i=", i))
 }
