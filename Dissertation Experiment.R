@@ -72,7 +72,7 @@ data1M_dfm$doc_id = NULL
 # data1M_dfm = cbind(data1M_dfm, price)
 # data1M_dfm = cbind(data1M_dfm, categories)
 
-#Split the data into labelled and unlabelled, randomly select required amounts
+#Split the data into labelled and unlabelled
 labelledData = data1M_dfm[1:2757,]
 unlabelledData = data1M_dfm[2758:nrow(data1M_dfm),]
 
@@ -80,6 +80,7 @@ unlabelledData = data1M_dfm[2758:nrow(data1M_dfm),]
 rm(data1M, corp, data1M_dfm, rating, len, price, categories)
 gc()
 
+#Pre-processing time
 timePre = Sys.time() - timePre
 
 ########## Prepare data for training and testing ##########
@@ -94,7 +95,7 @@ labelledData$class = as.factor(as.numeric(as.factor(labelledData$class)))
 unlabelledData$class = as.factor(rep(NA, nrow(unlabelledData)))
 
 #Create data frame to store results
-dfauc = data.frame("Model" = c(rep("C5.0 Decision Tree", 10), rep("k-NN", 10), rep("Multinomial Logistic Regression", 10)), "Percentage Labelled" = rep(c(10,20,30,40,50,60,70,80,90,100), 3), "AUC" = rep(0,30), "MCC" = rep(0,30))
+df = data.frame("Model" = c(rep("C5.0 Decision Tree", 10), rep("k-NN", 10), rep("Multinomial Logistic Regression", 10)), "Percentage Labelled" = rep(c(10,20,30,40,50,60,70,80,90,100), 3), "MCC" = rep(0,30))
 
 #Create lists to store 
 c5p = vector("list", 10)
@@ -104,6 +105,18 @@ logp = vector("list", 10)
 ########## Run experiment ##########
 
 timeExperiment = Sys.time()
+
+classacc = function(confMatrix){
+  acc = c()
+  for (y in 1:3){
+    if (sum(confMatrix[,y]) == 0){
+      acc = c(acc, NA)
+    } else{
+    acc = c(acc, confMatrix[y,y]/sum(confMatrix[,y]))
+    }
+  }
+  return(acc)
+}
 
 for (j in 1:3){
   #Reduce size of unlabelled data and shuffle both
@@ -219,233 +232,153 @@ for (j in 1:3){
     
     #Collect performance metrics
     if (i==1 & j==1){
-      c5p[[1]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred10))), labelledData$class[folds[[i]]])$byClass
-      c5p[[2]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred20))), labelledData$class[folds[[i]]])$byClass
-      c5p[[3]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred30))), labelledData$class[folds[[i]]])$byClass
-      c5p[[4]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred40))), labelledData$class[folds[[i]]])$byClass
-      c5p[[5]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred50))), labelledData$class[folds[[i]]])$byClass
-      c5p[[6]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred60))), labelledData$class[folds[[i]]])$byClass
-      c5p[[7]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred70))), labelledData$class[folds[[i]]])$byClass
-      c5p[[8]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred80))), labelledData$class[folds[[i]]])$byClass
-      c5p[[9]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred90))), labelledData$class[folds[[i]]])$byClass
-      c5p[[10]] = confusionMatrix(as.factor(as.numeric(unlist(c5pred100))), labelledData$class[folds[[i]]])$byClass
+      c5p[[1]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred10))), labelledData$class[folds[[i]]])$table)
+      c5p[[2]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred20))), labelledData$class[folds[[i]]])$table)
+      c5p[[3]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred30))), labelledData$class[folds[[i]]])$table)
+      c5p[[4]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred40))), labelledData$class[folds[[i]]])$table)
+      c5p[[5]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred50))), labelledData$class[folds[[i]]])$table)
+      c5p[[6]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred60))), labelledData$class[folds[[i]]])$table)
+      c5p[[7]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred70))), labelledData$class[folds[[i]]])$table)
+      c5p[[8]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred80))), labelledData$class[folds[[i]]])$table)
+      c5p[[9]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred90))), labelledData$class[folds[[i]]])$table)
+      c5p[[10]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred100))), labelledData$class[folds[[i]]])$table)
       
-      knnp[[1]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred10))), labelledData$class[folds[[i]]])$byClass
-      knnp[[2]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred20))), labelledData$class[folds[[i]]])$byClass
-      knnp[[3]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred30))), labelledData$class[folds[[i]]])$byClass
-      knnp[[4]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred40))), labelledData$class[folds[[i]]])$byClass
-      knnp[[5]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred50))), labelledData$class[folds[[i]]])$byClass
-      knnp[[6]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred60))), labelledData$class[folds[[i]]])$byClass
-      knnp[[7]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred70))), labelledData$class[folds[[i]]])$byClass
-      knnp[[8]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred80))), labelledData$class[folds[[i]]])$byClass
-      knnp[[9]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred90))), labelledData$class[folds[[i]]])$byClass
-      knnp[[10]] = confusionMatrix(as.factor(as.numeric(unlist(knnpred100))), labelledData$class[folds[[i]]])$byClass
+      knnp[[1]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred10))), labelledData$class[folds[[i]]])$table)
+      knnp[[2]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred20))), labelledData$class[folds[[i]]])$table)
+      knnp[[3]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred30))), labelledData$class[folds[[i]]])$table)
+      knnp[[4]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred40))), labelledData$class[folds[[i]]])$table)
+      knnp[[5]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred50))), labelledData$class[folds[[i]]])$table)
+      knnp[[6]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred60))), labelledData$class[folds[[i]]])$table)
+      knnp[[7]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred70))), labelledData$class[folds[[i]]])$table)
+      knnp[[8]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred80))), labelledData$class[folds[[i]]])$table)
+      knnp[[9]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred90))), labelledData$class[folds[[i]]])$table)
+      knnp[[10]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred100))), labelledData$class[folds[[i]]])$table)
       
-      logp[[1]] = confusionMatrix(as.factor(as.numeric(unlist(logpred10))), labelledData$class[folds[[i]]])$byClass
-      logp[[2]] = confusionMatrix(as.factor(as.numeric(unlist(logpred20))), labelledData$class[folds[[i]]])$byClass
-      logp[[3]] = confusionMatrix(as.factor(as.numeric(unlist(logpred30))), labelledData$class[folds[[i]]])$byClass
-      logp[[4]] = confusionMatrix(as.factor(as.numeric(unlist(logpred40))), labelledData$class[folds[[i]]])$byClass
-      logp[[5]] = confusionMatrix(as.factor(as.numeric(unlist(logpred50))), labelledData$class[folds[[i]]])$byClass
-      logp[[6]] = confusionMatrix(as.factor(as.numeric(unlist(logpred60))), labelledData$class[folds[[i]]])$byClass
-      logp[[7]] = confusionMatrix(as.factor(as.numeric(unlist(logpred70))), labelledData$class[folds[[i]]])$byClass
-      logp[[8]] = confusionMatrix(as.factor(as.numeric(unlist(logpred80))), labelledData$class[folds[[i]]])$byClass
-      logp[[9]] = confusionMatrix(as.factor(as.numeric(unlist(logpred90))), labelledData$class[folds[[i]]])$byClass
-      logp[[10]] = confusionMatrix(as.factor(as.numeric(unlist(logpred100))), labelledData$class[folds[[i]]])$byClass
+      logp[[1]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred10))), labelledData$class[folds[[i]]])$table)
+      logp[[2]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred20))), labelledData$class[folds[[i]]])$table)
+      logp[[3]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred30))), labelledData$class[folds[[i]]])$table)
+      logp[[4]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred40))), labelledData$class[folds[[i]]])$table)
+      logp[[5]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred50))), labelledData$class[folds[[i]]])$table)
+      logp[[6]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred60))), labelledData$class[folds[[i]]])$table)
+      logp[[7]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred70))), labelledData$class[folds[[i]]])$table)
+      logp[[8]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred80))), labelledData$class[folds[[i]]])$table)
+      logp[[9]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred90))), labelledData$class[folds[[i]]])$table)
+      logp[[10]] = classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred100))), labelledData$class[folds[[i]]])$table)
       
-      dfauc$AUC[1] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred10)))$auc[1]
-      dfauc$AUC[2] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred20)))$auc[1]
-      dfauc$AUC[3] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred30)))$auc[1]
-      dfauc$AUC[4] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred40)))$auc[1]
-      dfauc$AUC[5] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred50)))$auc[1]
-      dfauc$AUC[6] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred60)))$auc[1]
-      dfauc$AUC[7] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred70)))$auc[1]
-      dfauc$AUC[8] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred80)))$auc[1]
-      dfauc$AUC[9] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred90)))$auc[1]
-      dfauc$AUC[10] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred100)))$auc[1]
+      df$MCC[1] = mcc(unlist(c5pred10), labelledData$class[folds[[i]]])
+      df$MCC[2] = mcc(unlist(c5pred20), labelledData$class[folds[[i]]])
+      df$MCC[3] = mcc(unlist(c5pred30), labelledData$class[folds[[i]]])
+      df$MCC[4] = mcc(unlist(c5pred40), labelledData$class[folds[[i]]])
+      df$MCC[5] = mcc(unlist(c5pred50), labelledData$class[folds[[i]]])
+      df$MCC[6] = mcc(unlist(c5pred60), labelledData$class[folds[[i]]])
+      df$MCC[7] = mcc(unlist(c5pred70), labelledData$class[folds[[i]]])
+      df$MCC[8] = mcc(unlist(c5pred80), labelledData$class[folds[[i]]])
+      df$MCC[9] = mcc(unlist(c5pred90), labelledData$class[folds[[i]]])
+      df$MCC[10] = mcc(unlist(c5pred100), labelledData$class[folds[[i]]])
       
-      dfauc$AUC[11] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred10)))$auc[1]
-      dfauc$AUC[12] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred20)))$auc[1]
-      dfauc$AUC[13] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred30)))$auc[1]
-      dfauc$AUC[14] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred40)))$auc[1]
-      dfauc$AUC[15] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred50)))$auc[1]
-      dfauc$AUC[16] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred60)))$auc[1]
-      dfauc$AUC[17] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred70)))$auc[1]
-      dfauc$AUC[18] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred80)))$auc[1]
-      dfauc$AUC[19] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred90)))$auc[1]
-      dfauc$AUC[20] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred100)))$auc[1]
+      df$MCC[11] = mcc(unlist(knnpred10), labelledData$class[folds[[i]]])
+      df$MCC[12] = mcc(unlist(knnpred20), labelledData$class[folds[[i]]])
+      df$MCC[13] = mcc(unlist(knnpred30), labelledData$class[folds[[i]]])
+      df$MCC[14] = mcc(unlist(knnpred40), labelledData$class[folds[[i]]])
+      df$MCC[15] = mcc(unlist(knnpred50), labelledData$class[folds[[i]]])
+      df$MCC[16] = mcc(unlist(knnpred60), labelledData$class[folds[[i]]])
+      df$MCC[17] = mcc(unlist(knnpred70), labelledData$class[folds[[i]]])
+      df$MCC[18] = mcc(unlist(knnpred80), labelledData$class[folds[[i]]])
+      df$MCC[19] = mcc(unlist(knnpred90), labelledData$class[folds[[i]]])
+      df$MCC[20] = mcc(unlist(knnpred100), labelledData$class[folds[[i]]])
       
-      dfauc$AUC[21] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred10)))$auc[1]
-      dfauc$AUC[22] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred20)))$auc[1]
-      dfauc$AUC[23] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred30)))$auc[1]
-      dfauc$AUC[24] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred40)))$auc[1]
-      dfauc$AUC[25] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred50)))$auc[1]
-      dfauc$AUC[26] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred60)))$auc[1]
-      dfauc$AUC[27] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred70)))$auc[1]
-      dfauc$AUC[28] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred80)))$auc[1]
-      dfauc$AUC[29] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred90)))$auc[1]
-      dfauc$AUC[30] = multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred100)))$auc[1]
-      
-      dfauc$MCC[1] = mcc(unlist(c5pred10), labelledData$class[folds[[i]]])
-      dfauc$MCC[2] = mcc(unlist(c5pred20), labelledData$class[folds[[i]]])
-      dfauc$MCC[3] = mcc(unlist(c5pred30), labelledData$class[folds[[i]]])
-      dfauc$MCC[4] = mcc(unlist(c5pred40), labelledData$class[folds[[i]]])
-      dfauc$MCC[5] = mcc(unlist(c5pred50), labelledData$class[folds[[i]]])
-      dfauc$MCC[6] = mcc(unlist(c5pred60), labelledData$class[folds[[i]]])
-      dfauc$MCC[7] = mcc(unlist(c5pred70), labelledData$class[folds[[i]]])
-      dfauc$MCC[8] = mcc(unlist(c5pred80), labelledData$class[folds[[i]]])
-      dfauc$MCC[9] = mcc(unlist(c5pred90), labelledData$class[folds[[i]]])
-      dfauc$MCC[10] = mcc(unlist(c5pred100), labelledData$class[folds[[i]]])
-      
-      dfauc$MCC[11] = mcc(unlist(knnpred10), labelledData$class[folds[[i]]])
-      dfauc$MCC[12] = mcc(unlist(knnpred20), labelledData$class[folds[[i]]])
-      dfauc$MCC[13] = mcc(unlist(knnpred30), labelledData$class[folds[[i]]])
-      dfauc$MCC[14] = mcc(unlist(knnpred40), labelledData$class[folds[[i]]])
-      dfauc$MCC[15] = mcc(unlist(knnpred50), labelledData$class[folds[[i]]])
-      dfauc$MCC[16] = mcc(unlist(knnpred60), labelledData$class[folds[[i]]])
-      dfauc$MCC[17] = mcc(unlist(knnpred70), labelledData$class[folds[[i]]])
-      dfauc$MCC[18] = mcc(unlist(knnpred80), labelledData$class[folds[[i]]])
-      dfauc$MCC[19] = mcc(unlist(knnpred90), labelledData$class[folds[[i]]])
-      dfauc$MCC[20] = mcc(unlist(knnpred100), labelledData$class[folds[[i]]])
-      
-      dfauc$MCC[21] = mcc(unlist(logpred10), labelledData$class[folds[[i]]])
-      dfauc$MCC[22] = mcc(unlist(logpred20), labelledData$class[folds[[i]]])
-      dfauc$MCC[23] = mcc(unlist(logpred30), labelledData$class[folds[[i]]])
-      dfauc$MCC[24] = mcc(unlist(logpred40), labelledData$class[folds[[i]]])
-      dfauc$MCC[25] = mcc(unlist(logpred50), labelledData$class[folds[[i]]])
-      dfauc$MCC[26] = mcc(unlist(logpred60), labelledData$class[folds[[i]]])
-      dfauc$MCC[27] = mcc(unlist(logpred70), labelledData$class[folds[[i]]])
-      dfauc$MCC[28] = mcc(unlist(logpred80), labelledData$class[folds[[i]]])
-      dfauc$MCC[29] = mcc(unlist(logpred90), labelledData$class[folds[[i]]])
-      dfauc$MCC[30] = mcc(unlist(logpred100), labelledData$class[folds[[i]]])
+      df$MCC[21] = mcc(unlist(logpred10), labelledData$class[folds[[i]]])
+      df$MCC[22] = mcc(unlist(logpred20), labelledData$class[folds[[i]]])
+      df$MCC[23] = mcc(unlist(logpred30), labelledData$class[folds[[i]]])
+      df$MCC[24] = mcc(unlist(logpred40), labelledData$class[folds[[i]]])
+      df$MCC[25] = mcc(unlist(logpred50), labelledData$class[folds[[i]]])
+      df$MCC[26] = mcc(unlist(logpred60), labelledData$class[folds[[i]]])
+      df$MCC[27] = mcc(unlist(logpred70), labelledData$class[folds[[i]]])
+      df$MCC[28] = mcc(unlist(logpred80), labelledData$class[folds[[i]]])
+      df$MCC[29] = mcc(unlist(logpred90), labelledData$class[folds[[i]]])
+      df$MCC[30] = mcc(unlist(logpred100), labelledData$class[folds[[i]]])
       
     } else{
-      c5p[[1]] = (c5p[[1]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred10))), labelledData$class[folds[[i]]])$byClass) / 2
-      c5p[[2]] = (c5p[[2]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred20))), labelledData$class[folds[[i]]])$byClass) / 2
-      c5p[[3]] = (c5p[[3]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred30))), labelledData$class[folds[[i]]])$byClass) / 2
-      c5p[[4]] = (c5p[[4]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred40))), labelledData$class[folds[[i]]])$byClass) / 2
-      c5p[[5]] = (c5p[[5]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred50))), labelledData$class[folds[[i]]])$byClass) / 2
-      c5p[[6]] = (c5p[[6]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred60))), labelledData$class[folds[[i]]])$byClass) / 2
-      c5p[[7]] = (c5p[[7]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred70))), labelledData$class[folds[[i]]])$byClass) / 2
-      c5p[[8]] = (c5p[[8]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred80))), labelledData$class[folds[[i]]])$byClass) / 2
-      c5p[[9]] = (c5p[[9]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred90))), labelledData$class[folds[[i]]])$byClass) / 2
-      c5p[[10]] = (c5p[[10]] + confusionMatrix(as.factor(as.numeric(unlist(c5pred100))), labelledData$class[folds[[i]]])$byClass) / 2
+      c5p[[1]] = mean(c5p[[1]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred10))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      c5p[[2]] mean(c5p[[2]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred20))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      c5p[[3]] mean(c5p[[3]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred30))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      c5p[[4]] mean(c5p[[4]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred40))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      c5p[[5]] mean(c5p[[5]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred50))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      c5p[[6]] mean(c5p[[6]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred60))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      c5p[[7]] mean(c5p[[7]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred70))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      c5p[[8]] mean(c5p[[8]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred80))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      c5p[[9]] mean(c5p[[9]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred90))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      c5p[[10]] mean(c5p[[10]], classacc(confusionMatrix(as.factor(as.numeric(unlist(c5pred100))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
       
-      knnp[[1]] = (knnp[[1]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred10))), labelledData$class[folds[[i]]])$byClass) / 2
-      knnp[[2]] = (knnp[[2]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred20))), labelledData$class[folds[[i]]])$byClass) / 2
-      knnp[[3]] = (knnp[[3]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred30))), labelledData$class[folds[[i]]])$byClass) / 2
-      knnp[[4]] = (knnp[[4]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred40))), labelledData$class[folds[[i]]])$byClass) / 2
-      knnp[[5]] = (knnp[[5]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred50))), labelledData$class[folds[[i]]])$byClass) / 2
-      knnp[[6]] = (knnp[[6]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred60))), labelledData$class[folds[[i]]])$byClass) / 2
-      knnp[[7]] = (knnp[[7]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred70))), labelledData$class[folds[[i]]])$byClass) / 2
-      knnp[[8]] = (knnp[[8]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred80))), labelledData$class[folds[[i]]])$byClass) / 2
-      knnp[[9]] = (knnp[[9]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred90))), labelledData$class[folds[[i]]])$byClass) / 2
-      knnp[[10]] = (knnp[[10]] + confusionMatrix(as.factor(as.numeric(unlist(knnpred100))), labelledData$class[folds[[i]]])$byClass) / 2
+      knnp[[1]] mean(knnp[[1]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred10))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      knnp[[2]] mean(knnp[[2]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred20))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      knnp[[3]] mean(knnp[[3]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred30))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      knnp[[4]] mean(knnp[[4]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred40))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      knnp[[5]] mean(knnp[[5]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred50))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      knnp[[6]] mean(knnp[[6]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred60))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      knnp[[7]] mean(knnp[[7]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred70))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      knnp[[8]] mean(knnp[[8]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred80))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      knnp[[9]] mean(knnp[[9]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred90))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      knnp[[10]] mean(knnp[[10]], classacc(confusionMatrix(as.factor(as.numeric(unlist(knnpred100))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
       
-      logp[[1]] = (logp[[1]] + confusionMatrix(as.factor(as.numeric(unlist(logpred10))), labelledData$class[folds[[i]]])$byClass) / 2
-      logp[[2]] = (logp[[2]] + confusionMatrix(as.factor(as.numeric(unlist(logpred20))), labelledData$class[folds[[i]]])$byClass) / 2
-      logp[[3]] = (logp[[3]] + confusionMatrix(as.factor(as.numeric(unlist(logpred30))), labelledData$class[folds[[i]]])$byClass) / 2
-      logp[[4]] = (logp[[4]] + confusionMatrix(as.factor(as.numeric(unlist(logpred40))), labelledData$class[folds[[i]]])$byClass) / 2
-      logp[[5]] = (logp[[5]] + confusionMatrix(as.factor(as.numeric(unlist(logpred50))), labelledData$class[folds[[i]]])$byClass) / 2
-      logp[[6]] = (logp[[6]] + confusionMatrix(as.factor(as.numeric(unlist(logpred60))), labelledData$class[folds[[i]]])$byClass) / 2
-      logp[[7]] = (logp[[7]] + confusionMatrix(as.factor(as.numeric(unlist(logpred70))), labelledData$class[folds[[i]]])$byClass) / 2
-      logp[[8]] = (logp[[8]] + confusionMatrix(as.factor(as.numeric(unlist(logpred80))), labelledData$class[folds[[i]]])$byClass) / 2
-      logp[[9]] = (logp[[9]] + confusionMatrix(as.factor(as.numeric(unlist(logpred90))), labelledData$class[folds[[i]]])$byClass) / 2
-      logp[[10]] = (logp[[10]] + confusionMatrix(as.factor(as.numeric(unlist(logpred100))), labelledData$class[folds[[i]]])$byClass) / 2
-      
-      dfauc$AUC[1] = mean(dfauc$AUC[1], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred10)))$auc[1])
-      dfauc$AUC[2] = mean(dfauc$AUC[2], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred20)))$auc[1])
-      dfauc$AUC[3] = mean(dfauc$AUC[3], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred30)))$auc[1])
-      dfauc$AUC[4] = mean(dfauc$AUC[4], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred40)))$auc[1])
-      dfauc$AUC[5] = mean(dfauc$AUC[5], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred50)))$auc[1])
-      dfauc$AUC[6] = mean(dfauc$AUC[6], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred60)))$auc[1])
-      dfauc$AUC[7] = mean(dfauc$AUC[7], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred70)))$auc[1])
-      dfauc$AUC[8] = mean(dfauc$AUC[8], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred80)))$auc[1])
-      dfauc$AUC[9] = mean(dfauc$AUC[9], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred90)))$auc[1])
-      dfauc$AUC[10] = mean(dfauc$AUC[10], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(c5pred100)))$auc[1])
-      
-      dfauc$AUC[11] = mean(dfauc$AUC[11], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred10)))$auc[1])
-      dfauc$AUC[12] = mean(dfauc$AUC[12], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred20)))$auc[1])
-      dfauc$AUC[13] = mean(dfauc$AUC[13], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred30)))$auc[1])
-      dfauc$AUC[14] = mean(dfauc$AUC[14], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred40)))$auc[1])
-      dfauc$AUC[15] = mean(dfauc$AUC[15], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred50)))$auc[1])
-      dfauc$AUC[16] = mean(dfauc$AUC[16], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred60)))$auc[1])
-      dfauc$AUC[17] = mean(dfauc$AUC[17], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred70)))$auc[1])
-      dfauc$AUC[18] = mean(dfauc$AUC[18], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred80)))$auc[1])
-      dfauc$AUC[19] = mean(dfauc$AUC[19], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred90)))$auc[1])
-      dfauc$AUC[20] = mean(dfauc$AUC[20], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(knnpred100)))$auc[1])
-      
-      dfauc$AUC[21] = mean(dfauc$AUC[21], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred10)))$auc[1])
-      dfauc$AUC[22] = mean(dfauc$AUC[22], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred20)))$auc[1])
-      dfauc$AUC[23] = mean(dfauc$AUC[23], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred30)))$auc[1])
-      dfauc$AUC[24] = mean(dfauc$AUC[24], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred40)))$auc[1])
-      dfauc$AUC[25] = mean(dfauc$AUC[25], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred50)))$auc[1])
-      dfauc$AUC[26] = mean(dfauc$AUC[26], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred60)))$auc[1])
-      dfauc$AUC[27] = mean(dfauc$AUC[27], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred70)))$auc[1])
-      dfauc$AUC[28] = mean(dfauc$AUC[28], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred80)))$auc[1])
-      dfauc$AUC[29] = mean(dfauc$AUC[29], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred90)))$auc[1])
-      dfauc$AUC[30] = mean(dfauc$AUC[30], multiclass.roc(labelledData$class[folds[[i]]], as.numeric(unlist(logpred100)))$auc[1])
+      logp[[1]] mean(logp[[1]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred10))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      logp[[2]] mean(logp[[2]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred20))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      logp[[3]] mean(logp[[3]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred30))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      logp[[4]] mean(logp[[4]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred40))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      logp[[5]] mean(logp[[5]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred50))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      logp[[6]] mean(logp[[6]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred60))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      logp[[7]] mean(logp[[7]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred70))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      logp[[8]] mean(logp[[8]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred80))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      logp[[9]] mean(logp[[9]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred90))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
+      logp[[10]] mean(logp[[10]], classacc(confusionMatrix(as.factor(as.numeric(unlist(logpred100))), labelledData$class[folds[[i]]])$table), na.rm = TRUE)
      
-      dfauc$MCC[1] = mean(dfauc$MCC[1], mcc(unlist(c5pred10), labelledData$class[folds[[i]]]))
-      dfauc$MCC[2] = mean(dfauc$MCC[2], mcc(unlist(c5pred20), labelledData$class[folds[[i]]]))
-      dfauc$MCC[3] = mean(dfauc$MCC[3], mcc(unlist(c5pred30), labelledData$class[folds[[i]]]))
-      dfauc$MCC[4] = mean(dfauc$MCC[4], mcc(unlist(c5pred40), labelledData$class[folds[[i]]]))
-      dfauc$MCC[5] = mean(dfauc$MCC[5], mcc(unlist(c5pred50), labelledData$class[folds[[i]]]))
-      dfauc$MCC[6] = mean(dfauc$MCC[6], mcc(unlist(c5pred60), labelledData$class[folds[[i]]]))
-      dfauc$MCC[7] = mean(dfauc$MCC[7], mcc(unlist(c5pred70), labelledData$class[folds[[i]]]))
-      dfauc$MCC[8] = mean(dfauc$MCC[8], mcc(unlist(c5pred80), labelledData$class[folds[[i]]]))
-      dfauc$MCC[9] = mean(dfauc$MCC[9], mcc(unlist(c5pred90), labelledData$class[folds[[i]]]))
-      dfauc$MCC[10] = mean(dfauc$MCC[10], mcc(unlist(c5pred100), labelledData$class[folds[[i]]]))
+      df$MCC[1] = mean(df$MCC[1], mcc(unlist(c5pred10), labelledData$class[folds[[i]]]))
+      df$MCC[2] = mean(df$MCC[2], mcc(unlist(c5pred20), labelledData$class[folds[[i]]]))
+      df$MCC[3] = mean(df$MCC[3], mcc(unlist(c5pred30), labelledData$class[folds[[i]]]))
+      df$MCC[4] = mean(df$MCC[4], mcc(unlist(c5pred40), labelledData$class[folds[[i]]]))
+      df$MCC[5] = mean(df$MCC[5], mcc(unlist(c5pred50), labelledData$class[folds[[i]]]))
+      df$MCC[6] = mean(df$MCC[6], mcc(unlist(c5pred60), labelledData$class[folds[[i]]]))
+      df$MCC[7] = mean(df$MCC[7], mcc(unlist(c5pred70), labelledData$class[folds[[i]]]))
+      df$MCC[8] = mean(df$MCC[8], mcc(unlist(c5pred80), labelledData$class[folds[[i]]]))
+      df$MCC[9] = mean(df$MCC[9], mcc(unlist(c5pred90), labelledData$class[folds[[i]]]))
+      df$MCC[10] = mean(df$MCC[10], mcc(unlist(c5pred100), labelledData$class[folds[[i]]]))
       
-      dfauc$MCC[11] = mean(dfauc$MCC[11], mcc(unlist(knnpred10), labelledData$class[folds[[i]]]))
-      dfauc$MCC[12] = mean(dfauc$MCC[12], mcc(unlist(knnpred20), labelledData$class[folds[[i]]]))
-      dfauc$MCC[13] = mean(dfauc$MCC[13], mcc(unlist(knnpred30), labelledData$class[folds[[i]]]))
-      dfauc$MCC[14] = mean(dfauc$MCC[14], mcc(unlist(knnpred40), labelledData$class[folds[[i]]]))
-      dfauc$MCC[15] = mean(dfauc$MCC[15], mcc(unlist(knnpred50), labelledData$class[folds[[i]]]))
-      dfauc$MCC[16] = mean(dfauc$MCC[16], mcc(unlist(knnpred60), labelledData$class[folds[[i]]]))
-      dfauc$MCC[17] = mean(dfauc$MCC[17], mcc(unlist(knnpred70), labelledData$class[folds[[i]]]))
-      dfauc$MCC[18] = mean(dfauc$MCC[18], mcc(unlist(knnpred80), labelledData$class[folds[[i]]]))
-      dfauc$MCC[19] = mean(dfauc$MCC[19], mcc(unlist(knnpred90), labelledData$class[folds[[i]]]))
-      dfauc$MCC[20] = mean(dfauc$MCC[20], mcc(unlist(knnpred100), labelledData$class[folds[[i]]]))
+      df$MCC[11] = mean(df$MCC[11], mcc(unlist(knnpred10), labelledData$class[folds[[i]]]))
+      df$MCC[12] = mean(df$MCC[12], mcc(unlist(knnpred20), labelledData$class[folds[[i]]]))
+      df$MCC[13] = mean(df$MCC[13], mcc(unlist(knnpred30), labelledData$class[folds[[i]]]))
+      df$MCC[14] = mean(df$MCC[14], mcc(unlist(knnpred40), labelledData$class[folds[[i]]]))
+      df$MCC[15] = mean(df$MCC[15], mcc(unlist(knnpred50), labelledData$class[folds[[i]]]))
+      df$MCC[16] = mean(df$MCC[16], mcc(unlist(knnpred60), labelledData$class[folds[[i]]]))
+      df$MCC[17] = mean(df$MCC[17], mcc(unlist(knnpred70), labelledData$class[folds[[i]]]))
+      df$MCC[18] = mean(df$MCC[18], mcc(unlist(knnpred80), labelledData$class[folds[[i]]]))
+      df$MCC[19] = mean(df$MCC[19], mcc(unlist(knnpred90), labelledData$class[folds[[i]]]))
+      df$MCC[20] = mean(df$MCC[20], mcc(unlist(knnpred100), labelledData$class[folds[[i]]]))
       
-      dfauc$MCC[21] = mean(dfauc$MCC[21], mcc(unlist(logpred10), labelledData$class[folds[[i]]]))
-      dfauc$MCC[22] = mean(dfauc$MCC[22], mcc(unlist(logpred20), labelledData$class[folds[[i]]]))
-      dfauc$MCC[23] = mean(dfauc$MCC[23], mcc(unlist(logpred30), labelledData$class[folds[[i]]]))
-      dfauc$MCC[24] = mean(dfauc$MCC[24], mcc(unlist(logpred40), labelledData$class[folds[[i]]]))
-      dfauc$MCC[25] = mean(dfauc$MCC[25], mcc(unlist(logpred50), labelledData$class[folds[[i]]]))
-      dfauc$MCC[26] = mean(dfauc$MCC[26], mcc(unlist(logpred60), labelledData$class[folds[[i]]]))
-      dfauc$MCC[27] = mean(dfauc$MCC[27], mcc(unlist(logpred70), labelledData$class[folds[[i]]]))
-      dfauc$MCC[28] = mean(dfauc$MCC[28], mcc(unlist(logpred80), labelledData$class[folds[[i]]]))
-      dfauc$MCC[29] = mean(dfauc$MCC[29], mcc(unlist(logpred90), labelledData$class[folds[[i]]]))
-      dfauc$MCC[30] = mean(dfauc$MCC[30], mcc(unlist(logpred100), labelledData$class[folds[[i]]]))
+      df$MCC[21] = mean(df$MCC[21], mcc(unlist(logpred10), labelledData$class[folds[[i]]]))
+      df$MCC[22] = mean(df$MCC[22], mcc(unlist(logpred20), labelledData$class[folds[[i]]]))
+      df$MCC[23] = mean(df$MCC[23], mcc(unlist(logpred30), labelledData$class[folds[[i]]]))
+      df$MCC[24] = mean(df$MCC[24], mcc(unlist(logpred40), labelledData$class[folds[[i]]]))
+      df$MCC[25] = mean(df$MCC[25], mcc(unlist(logpred50), labelledData$class[folds[[i]]]))
+      df$MCC[26] = mean(df$MCC[26], mcc(unlist(logpred60), labelledData$class[folds[[i]]]))
+      df$MCC[27] = mean(df$MCC[27], mcc(unlist(logpred70), labelledData$class[folds[[i]]]))
+      df$MCC[28] = mean(df$MCC[28], mcc(unlist(logpred80), labelledData$class[folds[[i]]]))
+      df$MCC[29] = mean(df$MCC[29], mcc(unlist(logpred90), labelledData$class[folds[[i]]]))
+      df$MCC[30] = mean(df$MCC[30], mcc(unlist(logpred100), labelledData$class[folds[[i]]]))
     }
     message(paste0(round(100*(10*(j-1)+i)/30, 2), "% Done, ", "Time running: ", round(Sys.time() - timeTotal, 2)))
   }
 }
 
-rm(list = ls()[! ls() %in% c("dfauc", "duration", "c5p", "knnp", "logp", "basedfauc", "lengthdfauc", "ratingdfauc", "catdfauc", "pricedfauc", "timeTotal", "timePre", "timeExperiment", "dftimes")])
+rm(list = ls()[! ls() %in% c("df", "duration", "c5p", "knnp", "logp", "basedfauc", "lengthdfauc", "ratingdfauc", "catdfauc", "pricedfauc", "timeTotal", "timePre", "timeExperiment", "dftimes")])
 gc()
 
 ########## Store results in appropriate dataframe ##########
-basedfauc = dfauc
-# ratingdfauc = dfauc
-# lengthdfauc = dfauc
-# pricedfauc = dfauc
-# catdfauc = dfauc
+# basedfauc = df
+# ratingdfauc = df
+# lengthdfauc = df
+# pricedfauc = df
+catdfauc = df
 
 #Store time taken
 timeTotal = Sys.time() - timeTotal
 timeExperiment = Sys.time() - timeExperiment
-
-#Store as necessary
-# c5metaauc = data.frame("Metadata" = c(rep("Base", 10), rep("Rating", 10), rep("Length", 10), rep("Price", 10), rep("Category", 10)), "AUC" = c(basedfauc$AUC[1:10], ratingdfauc$AUC[1:10], lengthdfauc$AUC[1:10], pricedfauc$AUC[1:10], catdfauc$AUC[1:10]), "Percentage Labelled" = rep(seq(10,100,10), 5))
-# knnmetaauc = data.frame("Metadata" = c(rep("Base", 10), rep("Rating", 10), rep("Length", 10), rep("Price", 10), rep("Category", 10)), "AUC" = c(basedfauc$AUC[11:20], ratingdfauc$AUC[11:20], lengthdfauc$AUC[11:20], pricedfauc$AUC[11:20], catdfauc$AUC[11:20]), "Percentage Labelled" = rep(seq(10,100,10), 5))
-# logmetaauc = data.frame("Metadata" = c(rep("Base", 10), rep("Rating", 10), rep("Length", 10), rep("Price", 10), rep("Category", 10)), "AUC" = c(basedfauc$AUC[21:30], ratingdfauc$AUC[21:30], lengthdfauc$AUC[21:30], pricedfauc$AUC[21:30], catdfauc$AUC[21:30]), "Percentage Labelled" = rep(seq(10,100,10), 5))
-
-#Plot performance of different algorithms
-# ggplot(data = basedfauc, aes(y = AUC, x = Percentage.Labelled, color = Model)) + geom_line(size = 1.3) + ylim(c(0.5, 0.9)) + scale_x_continuous(breaks = c(10,20,30,40,50,60,70,80,90,100)) + xlab("Percentage Labelled")
-# ggplot(data = basedfauc, aes(y = MCC, x = Percentage.Labelled, color = Model)) + geom_line(size = 1.3) + scale_x_continuous(breaks = c(10,20,30,40,50,60,70,80,90,100)) + xlab("Percentage Labelled")
-
-#Plot performance of adding metadatas
-# ggplot(data = c5metaauc, aes(y = AUC, x = Percentage.Labelled, color = Metadata)) + geom_line(size = 1.3) + ylim(c(0.5, 0.9)) + scale_x_continuous(breaks = c(10,20,30,40,50,60,70,80,90,100)) + xlab("Percentage Labelled")
-# ggplot(data = knnmetaauc, aes(y = AUC, x = Percentage.Labelled, color = Metadata)) + geom_line(size = 1.3) + ylim(c(0.5, 0.9)) + scale_x_continuous(breaks = c(10,20,30,40,50,60,70,80,90,100)) + xlab("Percentage Labelled")
-# ggplot(data = logmetaauc, aes(y = AUC, x = Percentage.Labelled, color = Metadata)) + geom_line(size = 1.3) + ylim(c(0.5, 0.9)) + scale_x_continuous(breaks = c(10,20,30,40,50,60,70,80,90,100)) + xlab("Percentage Labelled")
