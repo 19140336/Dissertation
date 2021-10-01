@@ -73,7 +73,7 @@ knn = nearest_neighbor(mode = "classification") %>% set_engine("kknn")
 logreg = multinom_reg(mode = "classification") %>% set_engine("nnet")
 
 #Reduce size of labelled and unlabelled data
-labelledData = labelledData[sample(nrow(labelledData), 2000),]
+labelledData = labelledData[sample(nrow(labelledData), 1000),]
 unlabelledData = unlabelledData[sample(nrow(unlabelledData), 20000),]
 
 #Create folds
